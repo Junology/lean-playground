@@ -35,12 +35,12 @@ open Lean Server
 ### Acknowledgement and disclaimer
 
 Most of the materials in the note are written based on the source code of the core modules `Lean.Server.Rpc.*` and the author's rough speculation.
-In order to make a `#widget` example, [ProofWidgets](https://github.com/leanprover-community/ProofWidgets4) was a good reference.
+In making a `#widget` example, [ProofWidgets](https://github.com/leanprover-community/ProofWidgets4) was a good reference.
 Unfortunately, the official documentation about this topic is insufficient. 
 As a result, the note may contain a lot of misunderstanding and wrong explanations.
 
 
-## Definition
+## Definition and examples
 
 ### `RpcEncodable` structures
 
@@ -149,7 +149,7 @@ For example, a value of an enum type is represented by `Json.str` of its constru
 Recall that a server RPC method is defined in the `RequestM` monad context, and the result value is wrapped with `RequestTask`.
 
 ```lean
--- module: Lean.Server.Reqests
+-- module: Lean.Server.Requests
 
 abbrev RequestTask α := Task (Except RequestError α)
 abbrev RequestM := ReaderT RequestContext <| EIO RequestError
@@ -158,7 +158,7 @@ abbrev RequestM := ReaderT RequestContext <| EIO RequestError
 `RequestContext` is the structure that carries the editor states:
 
 ```lean
--- module: Lean.Server.Reqests
+-- module: Lean.Server.Requests
 
 structure RequestContext where
   rpcSessions   : RBMap UInt64 (IO.Ref FileWorker.RpcSession) compare
