@@ -194,7 +194,7 @@ One can write the RPC handler as the `x : Snapshot → RequestM (RequestTask β)
 For example, `Environment` is obtained by `Snapshot.env : Snapshot → Environment` function.
 In fact, `snap : Snapshot` suffices to run some of the core monads; e.g. the core defines
 
-```Lean
+```lean
 -- module: Lean.Server.Requests
 
 open Elab.Command in
