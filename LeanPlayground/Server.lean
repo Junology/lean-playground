@@ -36,7 +36,7 @@ open Lean Server
 
 Most of the materials in the note are written based on the source code of the core modules `Lean.Server.Rpc.*` and the author's rough speculation.
 In making a `#widget` example, [ProofWidgets](https://github.com/leanprover-community/ProofWidgets4) was a good reference.
-Unfortunately, the official documentation about this topic is insufficient. 
+Unfortunately, the official documentation about this topic is insufficient.
 As a result, the note may contain a lot of misunderstanding and wrong explanations.
 
 
@@ -84,7 +84,7 @@ instance : FromJson ColorfulText where
     let str ← json.getObjValAs? String "str"
     let color := UInt32.ofNat (← json.getObjValAs? Nat "color")
     return ⟨str,color⟩
- 
+
 /-!
 Having instances of `ToJson ColorfulText` and `FromJson ColorfulText`, we can serialize/deserialize `ColorfulText` data to/from JSON format.
 
@@ -223,7 +223,7 @@ As an example, we define a server RPC method that accepts `DeclQuery` defined ab
 
 open RequestM in
 /--
-An example server RPC module.
+An example server RPC method.
 Given a query of type `query : DeclQuery`, the method tries to find a declaration with name `query.decl` in the current file environment.
 If a declaration is found, it returns the header of the declaration, e.g. `def foo : True`, as a term of `ColorfulText` whose `color` is determined depending on the declaration type.
 -/
@@ -310,9 +310,9 @@ Editors, such as VS Code, can interact with the Lean server using registered met
 
 open Widget
 
+#print Widget.Module
 @[widget]
-def colorfulDeclWidget : UserWidgetDefinition where
-  name := "Colorful Declaration"
+def colorfulDeclWidget : Widget.Module where
   javascript := "
     import * as React from 'react'
     import {RpcContext, mapRpcError, useAsync} from '@leanprover/infoview'
@@ -344,4 +344,4 @@ def colorfulDeclWidget : UserWidgetDefinition where
     }
   "
 
-#widget colorfulDeclWidget (.mkObj [("decl", toJson `Nat.add_comm), ("expected", toJson LeanDeclType.thmDecl)])
+#widget colorfulDeclWidget with Json.mkObj [("decl", toJson `Quot.sound), ("expected", toJson LeanDeclType.thmDecl)]

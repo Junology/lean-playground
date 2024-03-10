@@ -10,3 +10,9 @@ require «doc-gen4» from git "https://github.com/leanprover/doc-gen4" @ "main"
 @[default_target]
 lean_lib «LeanPlayground» where
   -- add library configuration options here
+
+#print LeanExeConfig
+
+lean_exe «ArrayBench» where
+  srcDir := "./Test"
+  root := `ArrayBench
