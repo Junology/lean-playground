@@ -1,5 +1,5 @@
 import Std.Data.Array.Basic
---import Std.Data.Array.Lemmas
+import Std.Data.Array.Lemmas
 import Std.Data.List.Basic
 
 set_option autoImplicit false
@@ -14,8 +14,8 @@ def test1 (x : Array α) (i : Nat) (_ : i < x.size) : Array α :=
       loop (x.modify k (· + x[i]'(trans hik hk :))) (k+1) (.step hik)
     else
       x
+  termination_by x.size - k
   loop x (i+1) .refl
-termination_by loop x k _ => x.size - k
 
 def test2 (x : Array α) (i : Nat) (hi : i < x.size) : Array α :=
   let rec @[specialize] loop (x : Array α) (a : @& α) (k : Nat) : Array α :=
@@ -23,8 +23,8 @@ def test2 (x : Array α) (i : Nat) (hi : i < x.size) : Array α :=
       loop (x.modify k (· + a)) a (k+1)
     else
       x
+  termination_by x.size - k
   loop x (x[i]'hi) (i+1)
-termination_by loop x _ k => x.size - k
 
 def test2' (x : Array α) (i : Nat) (hi : i < x.size) : Array α :=
   let rec @[specialize] loop (x : Array α) (a : α) (k : Nat) : Array α :=
@@ -32,8 +32,8 @@ def test2' (x : Array α) (i : Nat) (hi : i < x.size) : Array α :=
       loop (x.modify k (· + a)) a (k+1)
     else
       x
+  termination_by x.size - k
   loop x (x[i]'hi) (i+1)
-termination_by loop x _ k => x.size - k
 
 def test3 (x : Array α) (i : Nat) (_ : i < x.size) : Array α :=
   Id.run <| do
