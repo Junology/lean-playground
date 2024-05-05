@@ -147,4 +147,31 @@ theorem testBit_mul_two_succ (x : Int) (i : Nat) : (x * 2).testBit (i+1) = x.tes
     refine Int.mul_ediv_cancel x ?_
     decide
 
+/--
+TODO: efficient implementation in terms of `Nat.land`.
+-/
+protected def and (x y : Int) : Int :=
+  x.bitwise and y
+
+instance : AndOp Int :=
+  ⟨Int.and⟩
+
+/--
+TODO: efficient implementation in terms of `Nat.lor`.
+-/
+protected def or (x y : Int) : Int :=
+  x.bitwise or y
+
+instance : OrOp Int :=
+  ⟨Int.or⟩
+
+/--
+TODO: efficient implementation in terms of `Nat.xor`.
+-/
+protected def xor (x y : Int) : Int :=
+  x.bitwise xor y
+
+instance : Xor Int :=
+  ⟨Int.xor⟩
+
 end Int
