@@ -72,9 +72,6 @@ theorem toNat_lt' {a : Int} {n : Nat} (h : n > 0) : a.toNat < n ↔ a < ↑(n : 
     simp only [Int.toNat, iff_true_left h]
     exact negSucc_lt_ofNat k n
 
---theorem emod_ofNat_lt (a : Int) {n : Nat} (h : n > 0) : a % ↑n < n := by
-  --sorry
-
 @[inline]
 protected def pair (a b : Int) : Int :=
   let rec tonat (a : Int) : Nat :=

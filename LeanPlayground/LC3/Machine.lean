@@ -3,6 +3,7 @@ import Std.Data.HashMap
 import LeanPlayground.Data.Int.Bit
 import LeanPlayground.LC3.Encodable
 import LeanPlayground.LC3.ISA
+import LeanPlayground.LC3.Memory
 
 /-!
 # A model of a machine for LC-3 ISA
@@ -53,69 +54,6 @@ instance : Encodable ProcessorStatus Int where
     cases n <;> cases z <;> cases p <;> rfl
 
 /-!
-### Memory addressing
--/
-
-inductive Address where
-| trapvec (n : Int) : Address
-| privMem (n : Int) : Address
-| privStack (n : Int) : Address
-| userMem (n : Int) : Address
-| userStack (n : Int) : Address
-| device (i : Nat) (n : Int) : Address
-deriving DecidableEq, Repr, Hashable
-
-namespace Address
-
-open Encodable in
-instance : Encodable Address Int where
-  encode addr :=
-    match addr with
-    | .trapvec n => encode ((0 : Fin 6), n)
-    | .privMem n => encode ((1 : Fin 6), n)
-    | .privStack n => encode ((2 : Fin 6), n)
-    | .userMem n => encode ((3 : Fin 6), n)
-    | .userStack n => encode ((4 : Fin 6), n)
-    | .device i n => encode ((5 : Fin 6), (encode (i, n) : Int))
-  decode n :=
-    match (decode n : Fin 6 × Int) with
-    | (0, n) => .trapvec n
-    | (1, n) => .privMem n
-    | (2, n) => .privStack n
-    | (3, n) => .userMem n
-    | (4, n) => .userStack n
-    | (5, n) => let (i,n) := (decode n : Nat × Int); .device i n
-  decode_encode addr := by
-    cases addr <;> simp only [decode_encode]
-
-@[inline]
-def isUser (addr : @& Address) : Bool :=
-  match addr with
-  | .trapvec _ | privMem _ | privStack _ => false
-  | .userMem _ | .userStack _ | .device _ _ => true
-
-@[inline]
-def isPrivilege (addr : @& Address) : Bool :=
-  match addr with
-  | .trapvec _ | privMem _ | privStack _ => true
-  | .userMem _ | .userStack _ | .device _ _ => false
-
-@[inline]
-def map (f : Int → Int) : Address → Address
-| .trapvec n => .trapvec <| f n
-| .privMem n => .privMem <| f n
-| .privStack n => .privStack <| f n
-| .userMem n => .userMem <| f n
-| .userStack n => .userStack <| f n
-| .device i n => .device i <| f n
-
-instance : HAdd Address Int Address where
-  hAdd addr n := addr.map (· + n)
-
-end Address
-
-
-/-!
 ### Definition of the machine
 -/
 
@@ -136,9 +74,22 @@ structure Machine where
   /-- Saved Stack pointer register -/
   sspr : Address
   /-- Memory space -/
-  mem : Std.HashMap Address Int
+  mem : Memory
+deriving Repr
 
 namespace Machine
+
+protected def toFormat (m : Machine) : Std.Format :=
+  let body : List Std.Format := [
+    f!"psr := {repr m.psr}",
+    f!"ir := {repr m.ir}",
+    f!"pc := {repr m.pc}",
+    f!"mar := {repr m.mar}",
+    f!"mdr := {m.mdr.toHexDigits}",
+    f!"reg := {m.reg.map Int.toHexDigits}",
+    f!"mem := {m.mem.toFormat}",
+  ]
+  Std.Format.bracket "{" (Std.Format.joinSep body ("," ++ Std.Format.line)) "}"
 
 def init : Machine where
   psr := ⟨false, true, false, 0, .privilege⟩
@@ -169,13 +120,21 @@ def setReg (m : Machine) (i : Fin 8) (n : Int) : Machine :=
 
 @[inline]
 def getMem (m : @& Machine) (addr : Address) : Int :=
-  m.mem[addr].getD default
+  m.mem[addr]
 
 @[inline]
 def setMem (m : Machine) (addr : Address) (n : Int) : Machine :=
   {m with
-    mem := m.mem.insert addr n
+    mem := m.mem.set addr n
   }
+
+/-- `m.getDevice i` returns the memory in the `i`-th device as `Std.HashMap Int Int` -/
+def getDevice (m : @& Machine) (i : Nat) : Std.HashMap Int Int :=
+  ∅ |> m.mem.fold fun x k n =>
+    if k.deviceID? = .some i then
+      x.insert k.val n
+    else
+      x
 
 /--
 Set the *Conditional Code* (i.e. `p`-, `z`-, and `n`-flags) properly depending on the given value.
@@ -388,4 +347,5 @@ def storeResult (m : Machine) : Option Machine :=
 
 end Machine
 
+#eval Machine.init |>.fetch
 end LC3

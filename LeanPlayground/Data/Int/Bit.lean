@@ -174,4 +174,14 @@ protected def xor (x y : Int) : Int :=
 instance : Xor Int :=
   ⟨Int.xor⟩
 
+protected def tohexDigits (x : Int) : String :=
+  match x with
+  | .ofNat n => s!"0x{Nat.toDigits 16 n |>.asString}"
+  | -[n+1] => s!"-0x{Nat.toDigits 16 (n+1) |>.asString}"
+
+protected def toHexDigits (x : Int) : String :=
+  match x with
+  | .ofNat n => s!"0x{Nat.toDigits 16 n |>.asString |>.toUpper}"
+  | -[n+1] => s!"-0x{Nat.toDigits 16 (n+1) |>.asString |>.toUpper}"
+
 end Int
